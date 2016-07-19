@@ -22,6 +22,7 @@ import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.Mapper;
 
 import java.util.List;
+import java.util.Set;
 
 public interface MetadataDao
 {
@@ -122,13 +123,16 @@ public interface MetadataDao
             @Bind("schemaName") String schemaName,
             @Bind("tableName") String tableName);
 
-    @SqlUpdate("INSERT INTO tables (schema_name, table_name, compaction_enabled, distribution_id)\n" +
-            "VALUES (:schemaName, :tableName, :compactionEnabled, :distributionId)")
+    @SqlUpdate("INSERT INTO tables (schema_name, table_name, compaction_enabled, organization_enabled, distribution_id)" +
+            "VALUES (\n" +
+            "  :schemaName, :tableName, :compactionEnabled, :organizationEnabled, :distributionId\n" +
+            ")\n")
     @GetGeneratedKeys
     long insertTable(
             @Bind("schemaName") String schemaName,
             @Bind("tableName") String tableName,
             @Bind("compactionEnabled") boolean compactionEnabled,
+            @Bind("organizationEnabled") boolean organizationEnabled,
             @Bind("distributionId") Long distributionId);
 
     @SqlUpdate("INSERT INTO columns (table_id, column_id, column_name, ordinal_position, data_type, sort_ordinal_position, bucket_ordinal_position)\n" +
@@ -242,4 +246,13 @@ public interface MetadataDao
     List<ColumnMetadataRow> getColumnMetadataRows(
             @Bind("schemaName") String schemaName,
             @Bind("tableName") String tableName);
+
+    @SqlQuery("SELECT table_id\n" +
+            "FROM tables\n" +
+            "WHERE organization_enabled\n" +
+            "  AND table_id IN\n" +
+            "       (SELECT table_id\n" +
+            "        FROM columns\n" +
+            "        WHERE sort_ordinal_position IS NOT NULL)")
+    Set<Long> getOrganizationEligibleTables();
 }

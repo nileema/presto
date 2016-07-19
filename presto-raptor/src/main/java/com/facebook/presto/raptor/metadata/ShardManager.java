@@ -57,6 +57,11 @@ public interface ShardManager
     Set<ShardMetadata> getNodeShards(String nodeIdentifier);
 
     /**
+     * Get shard metadata for shards on a given node.
+     */
+    Set<ShardMetadata> getNodeShards(String nodeIdentifier, long tableId);
+
+    /**
      * Return the shard nodes for a non-bucketed table.
      */
     ResultIterator<BucketShards> getShardNodes(long tableId, TupleDomain<RaptorColumnHandle> effectivePredicate);

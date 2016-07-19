@@ -568,7 +568,8 @@ public class RaptorMetadata
             MetadataDao dao = dbiHandle.attach(MetadataDao.class);
 
             Long distributionId = table.getDistributionId().isPresent() ? table.getDistributionId().getAsLong() : null;
-            long tableId = dao.insertTable(table.getSchemaName(), table.getTableName(), true, distributionId);
+            // TODO: update default value of organization_enabled to true
+            long tableId = dao.insertTable(table.getSchemaName(), table.getTableName(), true, false, distributionId);
 
             List<RaptorColumnHandle> sortColumnHandles = table.getSortColumnHandles();
             List<RaptorColumnHandle> bucketColumnHandles = table.getBucketColumnHandles();
